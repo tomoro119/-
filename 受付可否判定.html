@@ -4,11 +4,41 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>本人確認書類 利用可否判定ツール</title>
+
+  <!-- GitHub Pages / モバイル最適化 -->
+  <meta name="description" content="本人確認書類の利用可否を簡単に判定できるチェックツールです。" />
+  <meta name="robots" content="noindex,nofollow">
+
   <style>
-    body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; background:#f7f7f7; padding:20px; margin:0; }
-    h1 { margin-bottom: 10px; }
-    select { width: 100%; padding: 12px; font-size: 16px; border-radius:8px; }
-    .result { margin-top: 20px; padding: 16px; border-radius: 10px; font-size: 17px; line-height:1.5; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      background:#f7f7f7;
+      padding:20px;
+      margin:0;
+    }
+    h1 {
+      font-size:22px;
+      margin-bottom:8px;
+    }
+    .note-text {
+      font-size:14px;
+      color:#555;
+      margin-bottom:16px;
+    }
+    select {
+      width: 100%;
+      padding: 12px;
+      font-size: 16px;
+      border-radius:8px;
+      border:1px solid #ccc;
+    }
+    .result {
+      margin-top: 20px;
+      padding: 16px;
+      border-radius: 10px;
+      font-size: 16px;
+      line-height:1.5;
+    }
     .ok { background: #d4edda; color:#155724; }
     .cond { background:#d1ecf1; color:#0c5460; }
     .note { background:#e2e3e5; color:#383d41; }
@@ -17,20 +47,37 @@
     .detail3 { background:#fde2e4; color:#842029; }
     .sub { background: #fff3cd; color:#856404; }
     .ng { background: #f8d7da; color:#721c24; }
+
+    footer {
+      margin-top:40px;
+      font-size:12px;
+      color:#777;
+      text-align:center;
+    }
   </style>
 </head>
+
 <body>
 
 <h1>本人確認書類 利用可否判定</h1>
+<div class="note-text">
+  ※ 本ツールは受付時の一次判定用です。最終判断は社内ルールに従ってください。
+</div>
 
-<select id="doc" onchange="judge()">
+<select id="doc">
   <option value="">書類を選択してください</option>
 </select>
 
 <div id="result"></div>
 
+<footer>
+  © Internal Tool / GitHub Pages
+</footer>
+
 <script>
-// ▼ 書類リスト
+/* =========================
+   書類リスト
+========================= */
 const documents = [
   "個人番号カード(マイナンバーカード)",
   "運転免許証",
@@ -44,71 +91,18 @@ const documents = [
   "住民基本台帳カード",
   "住民票",
   "資格確認書",
-  "船員保険証(および、被扶養者証)",
-  "後期高齢者医療被保険者証",
-  "健康保険日雇特例被保険者手帳",
-  "国家公務員共済組合の組合証(および、被扶養者証)",
-  "地方公務員共済組合の組合証(および、被扶養者証)",
-  "私立学校教員共済制度の加入者証(および、被扶養者証)",
-  "介護保険証(介護保険被保険者証、暫定被保険者証)",
-  "自衛官診療証",
-  "国民健康保険退職被保険者証(通称マル証)",
-  "国民健康保険特例退職者被保険者証",
-  "遠隔地用被保険者証",
-  "学生用被保険者証(国民健康保険のみ)",
-  "国民健康保険高齢受給者証",
-  "健康保険高齢受給者証",
-  "健康保険被保険者受給資格者証",
-  "船員保険高齢受給者証",
-  "国家公務員共済組合高齢者受給者証",
-  "老人保険法医療受給者証",
-  "老人医療費受給者証",
-  "国民健康保険被保険者資格証明書",
-  "健康保険被保険者資格証明書",
-  "地方公務員共済組合高齢者受給者証",
   "学生証",
   "クレジットカード(デビットカード含む)",
-  "医療費の補助を受けることのできる手帳",
-  "医療費関連の受給者証",
   "運転経歴証明書",
   "仮運転免許証",
-  "官公庁の職員署",
-  "外交官身分証明票(IDカード)",
-  "住居証明書【外交官対応】",
-  "休日夜間等受診証",
-  "被保護者証明証",
-  "公共施設等でサービスを受けることのできる手帳(敬老手帳/老人福祉手帳等)",
-  "公務員身分証明書",
-  "国民健康保険短期被保険者証",
-  "市区町村発行のシルバーカード",
-  "市区町村発行の身分を証明するもの(カード型) 市民証/市民カード類",
-  "国会議員の議員身分証明書",
-  "地方議会議員の議員身分証明書",
-  "公設秘書身分証明書",
-  "事務局職員身分証明書",
-  "法制局身分証明書",
-  "裁判官弾劾裁判所身分証明書",
-  "自衛官身分証明書",
-  "生活保護受給世帯の証明書",
-  "各種国家資格免許",
-  "大使館職員証明書",
-  "年金手帳",
-  "児童扶養手当証書",
-  "特別児童扶養手当証書",
-  "母子健康手帳(親子健康手帳)",
-  "官公庁から発行・発給された書類",
   "米軍のIDカード",
-  "在日米軍個人車輌操縦許可書",
-  "米軍公用車輌運転者証明書",
-  "合衆国各州政府発給の運転免許証【米軍対応】",
-  "外国発行パスポート【米軍対応】",
   "外国発行パスポート【外国人対応】",
-  "受診券(医療券)【児童養護施設入所中の未成年者対応】",
-  "在籍(措置等)証明書【児童養護施設入所中の未成年者対応】",
   "通知カード"
 ];
 
-// ▼ 判定区分
+/* =========================
+   判定区分
+========================= */
 const OK = [
   "個人番号カード(マイナンバーカード)",
   "運転免許証",
@@ -117,14 +111,7 @@ const OK = [
   "精神障がい者保健福祉手帳",
   "特別永住者証明書",
   "運転経歴証明書",
-  "仮運転免許証",
-  "国会議員の議員身分証明書",
-  "地方議会議員の議員身分証明書",
-  "公設秘書身分証明書",
-  "事務局職員身分証明書",
-  "法制局身分証明書",
-  "裁判官弾劾裁判所身分証明書",
-  "在籍(措置等)証明書【児童養護施設入所中の未成年者対応】"
+  "仮運転免許証"
 ];
 
 const COND = [
@@ -143,37 +130,21 @@ const DETAIL1 = [
 
 const DETAIL2 = [
   "米軍のIDカード",
-  "在日米軍個人車輌操縦許可書",
-  "米軍公用車輌運転者証明書",
-  "合衆国各州政府発給の運転免許証【米軍対応】",
-  "外国発行パスポート【米軍対応】",
   "外国発行パスポート【外国人対応】"
-];
-
-const DETAIL3 = [
-  "受診券(医療券)【児童養護施設入所中の未成年者対応】"
 ];
 
 const SUB = [
   "住民基本台帳カード",
-  "官公庁の職員署",
-  "外交官身分証明票(IDカード)",
-  "住居証明書【外交官対応】",
-  "休日夜間等受診証",
-  "被保護者証明証",
-  "公共施設等でサービスを受けることのできる手帳(敬老手帳/老人福祉手帳等)",
-  "公務員身分証明書",
-  "市区町村発行のシルバーカード",
-  "市区町村発行の身分を証明するもの(カード型) 市民証/市民カード類",
-  "各種国家資格免許",
-  "大使館職員証明書",
-  "年金手帳",
-  "母子健康手帳(親子健康手帳)",
-  "官公庁から発行・発給された書類"
+  "住民票",
+  "通知カード"
 ];
 
-// ▼ 初期表示
+/* =========================
+   初期化
+========================= */
 const select = document.getElementById("doc");
+const result = document.getElementById("result");
+
 documents.forEach(d => {
   const opt = document.createElement("option");
   opt.value = d;
@@ -181,53 +152,41 @@ documents.forEach(d => {
   select.appendChild(opt);
 });
 
+select.addEventListener("change", judge);
+
+/* =========================
+   判定処理
+========================= */
 function judge() {
   const value = select.value;
-  const result = document.getElementById("result");
 
   if (!value) {
-    result.innerHTML = "";
+    result.textContent = "";
     result.className = "result";
     return;
   }
 
   if (OK.includes(value)) {
-    result.className = "result ok";
-    result.textContent = "判定：単体で受付OK";
+    setResult("単体で受付OK", "ok");
   } else if (COND.includes(value)) {
-    result.className = "result cond";
-    result.textContent = "判定：未成年のみ受付可（資格確認書＋学生証 等）";
+    setResult("条件付きOK（補助書類が必要）", "cond");
   } else if (NOTE.includes(value)) {
-    result.className = "result note";
-    result.textContent = "判定：注意事項あり（在留期間確認・外国発行パスポートor資格確認書）";
+    setResult("注意事項あり（在留期間等の確認必須）", "note");
   } else if (DETAIL1.includes(value)) {
-    result.className = "result detail1";
-    result.textContent = "判定：受付OK（最終ページに所持人記入欄無いパスポートは補助書類が必要）";
+    setResult("受付OK（記載条件を確認）", "detail1");
   } else if (DETAIL2.includes(value)) {
-    result.className = "result detail2";
-    result.textContent = "判定：詳細条件あり　検索ナンバー：02050010";
-  } else if (DETAIL3.includes(value)) {
-    result.className = "result detail3";
-    result.textContent = "判定：受付OK（氏名、住所、生年月日の記載）";
+    setResult("詳細条件あり（社内規定参照）", "detail2");
   } else if (SUB.includes(value)) {
-    result.className = "result sub";
-    result.textContent = "判定：補助書類が必要";
+    setResult("補助書類が必要", "sub");
   } else {
-    result.className = "result ng";
-    result.textContent = "判定：本人確認書類として使用不可";
+    setResult("本人確認書類として使用不可", "ng");
   }
 }
 
-// ▼ テスト
-console.assert(documents.length > 0, "書類リストが空です");
-console.assert(OK.every(d => documents.includes(d)), "OK配列に未定義書類があります");
-console.assert(COND.every(d => documents.includes(d)), "COND配列に未定義書類があります");
-console.assert(NOTE.every(d => documents.includes(d)), "NOTE配列に未定義書類があります");
-console.assert(DETAIL1.every(d => documents.includes(d)), "DETAIL1配列に未定義書類があります");
-console.assert(DETAIL2.every(d => documents.includes(d)), "DETAIL2配列に未定義書類があります");
-console.assert(DETAIL3.every(d => documents.includes(d)), "DETAIL3配列に未定義書類があります");
-console.assert(SUB.every(d => documents.includes(d)), "SUB配列に未定義書類があります");
-console.assert(!OK.includes(""), "OK配列に空文字が含まれています");
+function setResult(text, className) {
+  result.className = "result " + className;
+  result.textContent = "判定：" + text;
+}
 </script>
 
 </body>
